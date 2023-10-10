@@ -1,0 +1,25 @@
+name: BOTSERVER-deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    environment: stage
+    runs-on: ubuntu-latest
+    needs: build_and_push
+
+    steps:
+
+      -name: Deploy to AWS server via SSH connection
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          scripts:
+            cd telegram-bot-server
+            git pull origin main
+          docker compose up -d --build
